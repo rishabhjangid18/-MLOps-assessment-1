@@ -33,35 +33,11 @@ steps:
     uv --version
   displayName: "Install uv"
 
-# Cache uv dependencies
-- task: Cache@2
-  inputs:
-    key: 'uv | "$(Agent.OS)" | uv.lock'
-    restoreKeys: |
-      uv | "$(Agent.OS)"
-    path: ~/.cache/uv
-  displayName: "Cache uv"
 
 # Install dependencies
 - script: |
     uv sync --extra test
   displayName: "Install dependencies"
-
-# Create git tag from version.txt
-- script: |
-    VERSION=$(cat version.txt)
-    echo "Version: $VERSION"
-
-    git config user.email "ci@local"
-    git config user.name "CI"
-
-    git tag $VERSION || echo "Tag already exists"
-  displayName: "Git tag from version.txt"
-
-# Run pre-commit
-- script: |
-    uv run pre-commit run --all-files || true
-  displayName: "Run pre-commit"
 
 # Run pytest
 - script: |
