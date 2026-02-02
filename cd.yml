@@ -104,7 +104,7 @@ stages:
     - script: |
         export DATABRICKS_BUNDLE_ENV=prd
 
-        databricks bundle deploy \
+        databricks bundle deploy -t production\
           --var="git_sha=$(Build.SourceVersion)" \
           --var="branch=$(Build.SourceBranchName)"
       displayName: Bundle Deploy PRD
@@ -112,5 +112,5 @@ stages:
     # Run bundle in PRD
     - script: |
         export DATABRICKS_BUNDLE_ENV=prd
-        databricks bundle run
+        databricks bundle run production
       displayName: Bundle Run PRD
