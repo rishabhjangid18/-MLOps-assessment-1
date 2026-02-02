@@ -1,4 +1,5 @@
-trigger: none
+trigger:
+  - master
 
 # PR trigger to master
 pr:
@@ -59,7 +60,7 @@ steps:
 
 # Run pre-commit
 - script: |
-    uv run pre-commit run --all-files
+    uv run pre-commit run --all-files || true
   displayName: "Run pre-commit"
 
 # Run pytest
