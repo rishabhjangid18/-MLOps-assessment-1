@@ -1,5 +1,5 @@
 trigger:
-  - master
+  - none
 
 # PR trigger to master
 pr:
