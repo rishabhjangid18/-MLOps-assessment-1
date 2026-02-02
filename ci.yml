@@ -1,6 +1,3 @@
-name: CI
-
-# No push trigger (like your original)
 trigger: none
 
 # PR trigger to master
