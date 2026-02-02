@@ -56,10 +56,10 @@ stages:
       displayName: Bundle Deploy ACC
 
     # Run bundle in ACC
-    - script: |
-        export DATABRICKS_BUNDLE_ENV=acc
-        databricks bundle run deployment
-      displayName: Bundle Run ACC
+    # - script: |
+    #     export DATABRICKS_BUNDLE_ENV=acc
+    #     databricks bundle run deployment
+    #   displayName: Bundle Run ACC
 
 
 ############################
@@ -104,7 +104,7 @@ stages:
     - script: |
         export DATABRICKS_BUNDLE_ENV=prd
 
-        databricks bundle deploy -t production\
+        databricks bundle deploy\
           --var="git_sha=$(Build.SourceVersion)" \
           --var="branch=$(Build.SourceBranchName)"
       displayName: Bundle Deploy PRD
