@@ -1,0 +1,67 @@
+name: CD
+
+trigger:
+  - none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+- checkout: self
+  persistCredentials: true
+
+# Install Databricks CLI once
+- script: |
+    curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+    databricks --version
+  displayName: Install Databricks CLI
+
+# Configure Databricks
+- script: |
+    mkdir -p ~/.databricks
+    cat > ~/.databrickscfg << EOF
+    [DEFAULT]
+    host = $(DATABRICKS_HOST)
+    client_id = $(DATABRICKS_CLIENT_ID)
+    client_secret = $(DATABRICKS_CLIENT_SECRET)
+    EOF
+  displayName: Configure Databricks
+
+# Install uv
+- script: |
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    echo "##vso[task.prependpath]$HOME/.local/bin"
+  displayName: Install uv
+
+# ======================
+# ACC Deploy
+# ======================
+- script: |
+    export DATABRICKS_BUNDLE_ENV=acc
+
+    databricks bundle deploy \
+      --var="git_sha=$(Build.SourceVersion)" \
+      --var="branch=$(Build.SourceBranchName)"
+  displayName: Deploy ACC
+
+# ======================
+# PRD Deploy
+# ======================
+- script: |
+    export DATABRICKS_BUNDLE_ENV=prd
+
+    databricks bundle deploy \
+      --var="git_sha=$(Build.SourceVersion)" \
+      --var="branch=$(Build.SourceBranchName)"
+  displayName: Deploy PRD
+
+# Optional tagging
+- script: |
+    VERSION=$(cat version.txt)
+    git config user.email "ci@local"
+    git config user.name "CI"
+
+    git tag $VERSION || echo "Tag exists"
+    git push origin $VERSION || echo "Push skipped"
+  displayName: Tag release
