@@ -58,7 +58,7 @@ stages:
     # Run bundle in ACC
     - script: |
         export DATABRICKS_BUNDLE_ENV=acc
-        databricks bundle run development
+        databricks bundle run deployment
       displayName: Bundle Run ACC
 
 
