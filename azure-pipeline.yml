@@ -1,9 +1,7 @@
 name: CI-CD
 
 trigger:
-  branches:
-    include:
-      - master
+  - none
 
 pool:
   vmImage: ubuntu-latest
