@@ -1,17 +1,54 @@
 <h1 align="center">
 Marvelous MLOps Free End-to-end MLOps with Databricks Course
 
-## Set up your environment
-In this course, we use Databricks serverless [version 3](https://docs.databricks.com/aws/en/release-notes/serverless/environment-version/three)
+## Configuration (Required Before Running)
 
-In our examples, we use UV. Check out the documentation on how to install it: https://docs.astral.sh/uv/getting-started/installation/
+Before running the pipeline (or executing it manually), you **must update the catalog and schema names** to match your environment.
 
-To create a new environment and create a lockfile, run:
+1. Open the configuration file:
+   ```bash
+   project_config_marvel.yml
+   ```
+2. Find the following fields:
+    - catalog
+    - schema
 
-```
-uv sync --extra dev
-```
+3. Replace them with your own catalog and schema values.
+    ```bash
+    catalog: your_catalog_name
+    schema: your_schema_name
+   ```
+⚠️ If you do not update these values, the pipeline may fail due to incorrect or missing database targets.
 
+### Environment Setup
+
+This project uses **UV** for fast, reliable Python package management.
+
+1. **Install UV** (if not already installed):
+   ```bash
+   # macOS/Linux
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   
+   # Windows
+   powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+   ```
+
+2. **Clone the repository**:
+   ```bash
+   git clone https://github.com/marvelousmlops/marvel-characters.git
+   cd marvel-characters
+   ```
+
+3. **Create and activate the environment**:
+   ```bash
+   uv sync --extra dev
+   ```
+   
+   This command will:
+   - Create a new virtual environment
+   - Install all dependencies from `pyproject.toml`
+   - Install development dependencies
+   - Generate a lockfile (`uv.lock`)
 
 
 # Data
