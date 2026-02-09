@@ -1,0 +1,105 @@
+name: CI-CD
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+
+#####################################
+# JOB 1 — VALIDATE / TEST (CI)
+#####################################
+  validate:
+    name: Validate & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      # Install uv
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      # Install dependencies
+      - name: Install Dependencies
+        run: |
+          uv sync --extra test
+
+      # Run tests
+      - name: Run Tests
+        run: |
+          uv run pytest -m "not ci_exclude"
+
+
+#####################################
+# JOB 2 — DEPLOY (CD)
+#####################################
+  deploy:
+    name: Deploy to Databricks
+    runs-on: ubuntu-latest
+    needs: validate
+
+    # Only deploy on master branch
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      # Checkout
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Install Databricks CLI
+      - name: Install Databricks CLI
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+
+      # Configure Databricks
+      - name: Configure Databricks
+        run: |
+          mkdir -p ~/.databricks
+
+          cat > ~/.databrickscfg << EOF
+          [DEFAULT]
+          host = ${{ secrets.DATABRICKS_HOST }}
+          client_id = ${{ secrets.DATABRICKS_CLIENT_ID }}
+          client_secret = ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+          EOF
+
+      # Install uv
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      # Bundle Deploy
+      - name: Bundle Deploy
+        env:
+          DATABRICKS_BUNDLE_ENV: acc
+        run: |
+          databricks bundle deploy
+
+      # Bundle Run
+      - name: Bundle Run
+        env:
+          DATABRICKS_BUNDLE_ENV: acc
+        run: |
+          databricks bundle run deployment
